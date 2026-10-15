@@ -3,27 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AguaVida · Agua potable a domicilio</title>
+  <title>Verbier · Agua potable a domicilio</title>
+  <link rel="icon" type="image/png" href="img/logo.png">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- jsPDF para generar la factura -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-    <header class="header">
-    <div class="logo">
-      <i class="fas fa-droplet"></i>
-      <span>Agua<strong>Vida</strong></span>
-    </div>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img src="img/logo.png" alt="Verbier" class="logo-img">
+      <span><strong></strong></span>
+    </a>
 
-    <!-- Botón hamburguesa (solo se ve en móvil) -->
     <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
       <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Menú que se despliega -->
     <nav id="menuNav">
       <a href="#precios" id="navPrecios">Precios</a>
       <a href="#" id="navContacto">Contacto</a>
@@ -31,18 +29,62 @@
     </nav>
   </header>
 
-  <section class="hero">
-    <div class="hero-content">
-      <span class="badge"><i class="fas fa-shield-halved"></i> Agua 100% purificada</span>
-      <h1>Hidratación pura<br>a tu puerta</h1>
-      <p>Garrafones de 20L con entrega el mismo día. Pide fácil, paga al recibir.</p>
-      <button class="btn-primary" id="ctaPedir">
-        <i class="fas fa-truck-fast"></i> Pedir ahora
-      </button>
+  <!-- CARRUSEL HERO -->
+  <section class="hero-carrusel">
+    <div class="slides-container" id="slidesContainer">
+
+      <div class="slide active">
+        <div class="slide-content">
+          <span class="badge"><i class="fas fa-shield-halved"></i> Agua 100% purificada</span>
+          <h1>Cada gota<br>cuenta</h1>
+          <p>Garrafones de 20L con entrega el mismo día. Pide fácil, paga al recibir.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-truck-fast"></i> Pedir ahora
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/hero.png" alt="Garrafón Verbier" class="hero-logo">
+        </div>
+      </div>
+
+      <div class="slide">
+        <div class="slide-content">
+          <span class="badge badge-promo"><i class="fas fa-gift"></i> Promoción del mes</span>
+          <h1>2x1 en<br>tu primer pedido</h1>
+          <p>Regístrate hoy y llévate 2 garrafones al precio de 1. Válido para nuevos clientes.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-fire"></i> Aprovechar oferta
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/promovacio.jpg" alt="Promoción Verbier" class="hero-logo">
+        </div>
+      </div>
+
+      <div class="slide">
+        <div class="slide-content">
+          <span class="badge badge-envio"><i class="fas fa-truck"></i> Envío gratis</span>
+          <h1>Envío gratis<br>desde 3 garrafones</h1>
+          <p>Pide 3 o más garrafones y te lo llevamos sin costo adicional en Santo Domingo.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-bolt"></i> Pedir ya
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/hero.png" alt="Envío gratis Verbier" class="hero-logo">
+        </div>
+      </div>
+
     </div>
-    <div class="hero-img">
-      <i class="fas fa-bottle-water"></i>
-    </div>
+
+    <button class="slide-arrow prev" id="slidePrev" aria-label="Anterior">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slide-arrow next" id="slideNext" aria-label="Siguiente">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <div class="slide-dots" id="slideDots"></div>
   </section>
 
   <section id="precios" class="precios">
@@ -79,7 +121,20 @@
         <input type="email" id="loginEmail" placeholder="Correo">
         <input type="password" id="loginPass" placeholder="Contraseña">
         <button class="btn-primary" id="btnLogin">Entrar</button>
+        <p class="switch" style="margin-top:.5rem;">
+          <a href="#" id="goForgot" style="font-size:.85rem;color:#417e9e;">¿Olvidaste tu contraseña?</a>
+        </p>
         <p class="switch">¿No tienes cuenta? <a href="#" id="goRegister">Regístrate</a></p>
+      </div>
+
+      <div id="viewForgot" class="view hidden">
+        <h2>Recuperar contraseña</h2>
+        <p style="color:#417e9e;font-size:.9rem;margin-bottom:1rem;">
+          Escribe tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
+        <input type="email" id="forgotEmail" placeholder="Tu correo electrónico">
+        <button class="btn-primary" id="btnForgot">Enviar enlace</button>
+        <p class="switch">¿Recordaste tu contraseña? <a href="#" id="goLoginFromForgot">Inicia sesión</a></p>
       </div>
 
       <div id="viewRegister" class="view hidden">
@@ -134,7 +189,7 @@
   </div>
 
   <footer id="contacto" class="footer">
-    <p><i class="fas fa-droplet"></i> AguaVida · República Dominicana</p>
+    <p><i class="fas fa-droplet"></i> Verbier · República Dominicana</p>
     <p>
       <a href="#" id="footerWhatsapp"><i class="fab fa-whatsapp"></i> Escríbenos por WhatsApp</a>
     </p>

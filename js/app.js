@@ -1,7 +1,7 @@
 import { auth, db } from './firebase-config.js';
 import {
   createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged
+  signOut, onAuthStateChanged, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   doc, setDoc, getDoc, collection, addDoc, serverTimestamp
@@ -11,21 +11,24 @@ import {
 const WHATSAPP = "18296759264";
 
 const NEGOCIO = {
-  nombre: "AguaVida",
+  nombre: "Verbier",
   slogan: "Agua potable a domicilio",
-  telefono: "+1 809 000-0000",
-  email: "contacto@aguavida.do",
+  telefono: "+1 809 415-9310",
+  email: "contacto@verbier.do",
   direccion: "Santo Domingo, República Dominicana"
 };
 
+// ========== REFERENCIAS AL DOM ==========
 const modal = document.getElementById('modal');
 const closeModal = document.getElementById('closeModal');
 const authArea = document.getElementById('authArea');
 const viewLogin = document.getElementById('viewLogin');
 const viewRegister = document.getElementById('viewRegister');
+const viewForgot = document.getElementById('viewForgot');
 const viewPedido = document.getElementById('viewPedido');
 const msg = document.getElementById('msg');
 
+// ========== ESTADO GLOBAL ==========
 let currentUser = null;
 let userData = null;
 let carrito = [];
@@ -37,35 +40,42 @@ function showMsg(text, type = 'ok') {
   msg.classList.remove('hidden');
   setTimeout(() => msg.classList.add('hidden'), 4000);
 }
+
 function showView(view) {
-  [viewLogin, viewRegister, viewPedido].forEach(v => v.classList.add('hidden'));
+  [viewLogin, viewRegister, viewForgot, viewPedido].forEach(v => v.classList.add('hidden'));
   view.classList.remove('hidden');
   msg.classList.add('hidden');
 }
+
 function openModal(view) {
   modal.classList.remove('hidden');
   showView(view);
 }
-function formatoMoneda(n) { return `$${n.toLocaleString('es-DO')}`; }
+
+function formatoMoneda(n) {
+  return `$${n.toLocaleString('es-DO')}`;
+}
+
+function abrirWhatsAppContacto() {
+  const texto = `¡Hola ${NEGOCIO.nombre}! %0AQuisiera más información sobre el servicio de agua a domicilio.`;
+  window.open(`https://wa.me/${WHATSAPP}?text=${texto}`, '_blank');
+}
 
 // ========== NAVEGACIÓN HEADER ==========
 document.getElementById('navPrecios').onclick = (e) => {
   e.preventDefault();
   document.getElementById('precios').scrollIntoView({ behavior: 'smooth' });
 };
+
 document.getElementById('navContacto').onclick = (e) => {
   e.preventDefault();
   abrirWhatsAppContacto();
 };
+
 document.getElementById('footerWhatsapp').onclick = (e) => {
   e.preventDefault();
   abrirWhatsAppContacto();
 };
-
-function abrirWhatsAppContacto() {
-  const texto = `¡Hola ${NEGOCIO.nombre}! 👋%0AQuisiera más información sobre el servicio de agua a domicilio.`;
-  window.open(`https://wa.me/${WHATSAPP}?text=${texto}`, '_blank');
-}
 
 // ========== AUTH STATE ==========
 onAuthStateChanged(auth, async (user) => {
@@ -73,6 +83,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     const snap = await getDoc(doc(db, 'usuarios', user.uid));
     userData = snap.exists() ? snap.data() : {};
+
     authArea.innerHTML = `
       <span style="color:#0b5e8a;font-weight:600;">Hola, ${userData.nombre?.split(' ')[0] || 'cliente'}</span>
       <button class="btn-primary" id="btnNuevoPedido" style="padding:.5rem 1.2rem;font-size:.9rem;">
@@ -80,6 +91,7 @@ onAuthStateChanged(auth, async (user) => {
       </button>
       <a href="#" id="btnLogout" style="color:#a02020;font-size:.85rem;">Salir</a>
     `;
+
     document.getElementById('btnNuevoPedido').onclick = () => openPedido();
     document.getElementById('btnLogout').onclick = async (e) => {
       e.preventDefault();
@@ -89,30 +101,38 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     currentUser = null;
     userData = null;
+
     authArea.innerHTML = `
       <button class="btn-primary" id="btnLoginOpen" style="padding:.5rem 1.2rem;font-size:.9rem;">
         <i class="fas fa-user"></i> Entrar
       </button>
     `;
+
     document.getElementById('btnLoginOpen').onclick = () => openModal(viewLogin);
   }
 });
 
 // ========== MODAL ==========
-document.getElementById('ctaPedir').onclick = () => {
-  if (currentUser) openPedido();
-  else openModal(viewRegister);
-};
 closeModal.onclick = () => modal.classList.add('hidden');
 modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
-document.getElementById('goRegister').onclick = (e) => { e.preventDefault(); showView(viewRegister); };
-document.getElementById('goLogin').onclick = (e) => { e.preventDefault(); showView(viewLogin); };
+
+document.getElementById('goRegister').onclick = (e) => {
+  e.preventDefault();
+  showView(viewRegister);
+};
+
+document.getElementById('goLogin').onclick = (e) => {
+  e.preventDefault();
+  showView(viewLogin);
+};
 
 // ========== LOGIN ==========
 document.getElementById('btnLogin').onclick = async () => {
   const email = document.getElementById('loginEmail').value.trim();
   const pass = document.getElementById('loginPass').value;
+
   if (!email || !pass) return showMsg('Completa todos los campos', 'error');
+
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     modal.classList.add('hidden');
@@ -151,6 +171,7 @@ document.getElementById('btnRegister').onclick = async () => {
 // ========== CARRITO ==========
 function renderCarrito() {
   const cont = document.getElementById('carrito');
+
   if (!carrito.length) {
     cont.innerHTML = `<div class="carrito-vacio"><i class="fas fa-shopping-basket"></i> Carrito vacío — agrega productos</div>`;
   } else {
@@ -165,6 +186,7 @@ function renderCarrito() {
         </div>
       </div>
     `).join('');
+
     cont.querySelectorAll('.btn-remove').forEach(btn => {
       btn.onclick = () => {
         carrito.splice(parseInt(btn.dataset.index), 1);
@@ -172,6 +194,7 @@ function renderCarrito() {
       };
     });
   }
+
   const total = carrito.reduce((s, it) => s + it.precio * it.cantidad, 0);
   document.getElementById('totalPedido').textContent = formatoMoneda(total);
 }
@@ -232,6 +255,7 @@ function generarFacturaPDF(pedido) {
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('FACTURA', pageW - margen, 15, { align: 'right' });
+
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('No. ' + numFactura, pageW - margen, 22, { align: 'right' });
@@ -260,7 +284,6 @@ function generarFacturaPDF(pedido) {
   // ----- TABLA DE PRODUCTOS -----
   y += 12;
 
-  // Encabezado de tabla
   doc.setFillColor(230, 244, 255);
   doc.rect(margen, y - 6, pageW - margen * 2, 9, 'F');
   doc.setFont('helvetica', 'bold');
@@ -282,7 +305,6 @@ function generarFacturaPDF(pedido) {
     y += 7;
   });
 
-  // Línea separadora
   doc.setDrawColor(200, 220, 235);
   doc.line(margen, y, pageW - margen, y);
   y += 8;
@@ -307,6 +329,7 @@ function generarFacturaPDF(pedido) {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(11, 53, 80);
     doc.text('Notas:', margen, y);
+
     doc.setFont('helvetica', 'normal');
     y += 6;
     const notaLines = doc.splitTextToSize(pedido.notas, pageW - margen * 2);
@@ -323,7 +346,6 @@ function generarFacturaPDF(pedido) {
     { align: 'center' }
   );
 
-  // Guardar
   doc.save(`Factura-${numFactura}.pdf`);
   return numFactura;
 }
@@ -335,6 +357,7 @@ document.getElementById('btnPedir').onclick = async () => {
   const dir = document.getElementById('pedidoDir').value.trim();
   const horario = document.getElementById('pedidoHorario').value;
   const notas = document.getElementById('pedidoNotas').value.trim();
+
   if (!dir) return showMsg('Ingresa tu dirección', 'error');
 
   const total = carrito.reduce((s, it) => s + it.precio * it.cantidad, 0);
@@ -356,13 +379,9 @@ document.getElementById('btnPedir').onclick = async () => {
       fecha: serverTimestamp()
     };
 
-    // Guardar en Firestore
-    const docRef = await addDoc(collection(db, 'pedidos'), pedido);
-
-    // Generar PDF
+    await addDoc(collection(db, 'pedidos'), pedido);
     const numFactura = generarFacturaPDF(pedido);
 
-    // Abrir WhatsApp con mensaje corto
     const mensaje =
       `*${NEGOCIO.nombre} — Nuevo pedido*%0A%0A` +
       `Hola, acabo de generar mi factura *${numFactura}* por un total de *${formatoMoneda(total)}*.%0A%0A` +
@@ -375,10 +394,148 @@ document.getElementById('btnPedir').onclick = async () => {
       window.open(`https://wa.me/${WHATSAPP}?text=${mensaje}`, '_blank');
       modal.classList.add('hidden');
     }, 1500);
-
   } catch (e) {
     console.error(e);
     showMsg('Error al guardar el pedido', 'error');
   }
 };
 
+// ========== OLVIDÉ MI CONTRASEÑA ==========
+document.getElementById('goForgot').onclick = (e) => {
+  e.preventDefault();
+  showView(viewForgot);
+};
+
+document.getElementById('goLoginFromForgot').onclick = (e) => {
+  e.preventDefault();
+  showView(viewLogin);
+};
+
+document.getElementById('btnForgot').onclick = async () => {
+  const email = document.getElementById('forgotEmail').value.trim();
+
+  if (!email) return showMsg('Escribe tu correo', 'error');
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showMsg('✅ Revisa tu correo. Te enviamos un enlace para restablecer tu contraseña.');
+    document.getElementById('forgotEmail').value = '';
+    setTimeout(() => showView(viewLogin), 3000);
+  } catch (e) {
+    console.error(e);
+    if (e.code === 'auth/user-not-found') {
+      showMsg('No existe una cuenta con ese correo', 'error');
+    } else if (e.code === 'auth/invalid-email') {
+      showMsg('El correo no es válido', 'error');
+    } else {
+      showMsg('Error al enviar. Intenta de nuevo.', 'error');
+    }
+  }
+};
+
+// ========== MENÚ HAMBURGUESA ==========
+const menuToggle = document.getElementById('menuToggle');
+const menuNav = document.getElementById('menuNav');
+
+if (menuToggle && menuNav) {
+  menuToggle.onclick = () => {
+    menuNav.classList.toggle('open');
+    const icon = menuToggle.querySelector('i');
+    icon.className = menuNav.classList.contains('open') ? 'fas fa-times' : 'fas fa-bars';
+  };
+
+  menuNav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      menuNav.classList.remove('open');
+      menuToggle.querySelector('i').className = 'fas fa-bars';
+    });
+  });
+}
+
+// ========== CARRUSEL HERO ==========
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('slideDots');
+  const btnPrev = document.getElementById('slidePrev');
+  const btnNext = document.getElementById('slideNext');
+
+  if (!slides.length || !dotsContainer || !btnPrev || !btnNext) {
+    console.warn('Carrusel: faltan elementos');
+    return;
+  }
+
+  let slideActual = 0;
+  let autoplayTimer = null;
+  const DURACION = 6000;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Ir al slide ' + (i + 1));
+    dot.addEventListener('click', () => irASlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = dotsContainer.querySelectorAll('.dot');
+
+  function irASlide(index) {
+    slides[slideActual].classList.remove('active');
+    dots[slideActual].classList.remove('active');
+
+    slideActual = (index + slides.length) % slides.length;
+
+    slides[slideActual].classList.add('active');
+    dots[slideActual].classList.add('active');
+
+    reiniciarAutoplay();
+  }
+
+  function siguiente() { irASlide(slideActual + 1); }
+  function anterior() { irASlide(slideActual - 1); }
+
+  btnNext.addEventListener('click', siguiente);
+  btnPrev.addEventListener('click', anterior);
+
+  function iniciarAutoplay() {
+    autoplayTimer = setInterval(siguiente, DURACION);
+  }
+  function reiniciarAutoplay() {
+    clearInterval(autoplayTimer);
+    iniciarAutoplay();
+  }
+  function pausarAutoplay() {
+    clearInterval(autoplayTimer);
+  }
+
+  const carrusel = document.querySelector('.hero-carrusel');
+  if (carrusel) {
+    carrusel.addEventListener('mouseenter', pausarAutoplay);
+    carrusel.addEventListener('mouseleave', iniciarAutoplay);
+
+    let touchStartX = 0;
+    carrusel.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    carrusel.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].screenX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) siguiente();
+        else anterior();
+      }
+    }, { passive: true });
+  }
+
+  iniciarAutoplay();
+})();
+
+// ========== BOTONES "PEDIR" DEL CARRUSEL ==========
+document.querySelectorAll('.cta-pedir').forEach(btn => {
+  btn.onclick = () => {
+    if (auth.currentUser) {
+      if (userData && userData.nombre) openPedido();
+      else setTimeout(() => openPedido(), 300);
+    } else {
+      openModal(viewRegister);
+    }
+  };
+});
