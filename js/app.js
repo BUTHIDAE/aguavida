@@ -4,7 +4,8 @@ import {
   signOut, onAuthStateChanged, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, setDoc, getDoc, collection, addDoc, serverTimestamp
+  doc, setDoc, getDoc, collection, addDoc, serverTimestamp,
+  query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ⚠️ CAMBIA ESTE NÚMERO POR EL TUYO (formato internacional, sin + ni espacios)
@@ -27,6 +28,7 @@ const viewRegister = document.getElementById('viewRegister');
 const viewForgot = document.getElementById('viewForgot');
 const viewPedido = document.getElementById('viewPedido');
 const msg = document.getElementById('msg');
+const viewHistorial = document.getElementById('viewHistorial');
 
 // ========== ESTADO GLOBAL ==========
 let currentUser = null;
@@ -42,7 +44,7 @@ function showMsg(text, type = 'ok') {
 }
 
 function showView(view) {
-  [viewLogin, viewRegister, viewForgot, viewPedido].forEach(v => v.classList.add('hidden'));
+  [viewLogin, viewRegister, viewForgot, viewPedido, viewHistorial].forEach(v => v.classList.add('hidden'));
   view.classList.remove('hidden');
   msg.classList.add('hidden');
 }
@@ -85,12 +87,18 @@ onAuthStateChanged(auth, async (user) => {
     userData = snap.exists() ? snap.data() : {};
 
     authArea.innerHTML = `
+      <a href="#" id="btnMisPedidos" style="color:#0b5e8a;font-weight:600;text-decoration:none;font-size:.9rem;">Mis pedidos</a>
       <span style="color:#0b5e8a;font-weight:600;">Hola, ${userData.nombre?.split(' ')[0] || 'cliente'}</span>
       <button class="btn-primary" id="btnNuevoPedido" style="padding:.5rem 1.2rem;font-size:.9rem;">
         <i class="fas fa-plus"></i> Pedir
       </button>
       <a href="#" id="btnLogout" style="color:#a02020;font-size:.85rem;">Salir</a>
     `;
+
+    document.getElementById('btnMisPedidos').onclick = (e) => {
+      e.preventDefault();
+      abrirHistorial();
+    };
 
     document.getElementById('btnNuevoPedido').onclick = () => openPedido();
     document.getElementById('btnLogout').onclick = async (e) => {
@@ -110,7 +118,7 @@ onAuthStateChanged(auth, async (user) => {
 
     document.getElementById('btnLoginOpen').onclick = () => openModal(viewLogin);
   }
-});
+}); // <-- AQUÍ ESTABA EL ERROR. Faltaba cerrar esta función.
 
 // ========== MODAL ==========
 closeModal.onclick = () => modal.classList.add('hidden');
@@ -539,3 +547,80 @@ document.querySelectorAll('.cta-pedir').forEach(btn => {
     }
   };
 });
+
+// ========== HISTORIAL DE PEDIDOS ==========
+async function abrirHistorial() {
+  const contenedor = document.getElementById('listaHistorial');
+  contenedor.innerHTML = `<div class="historial-vacio"><i class="fas fa-spinner fa-spin"></i> Cargando pedidos...</div>`;
+  
+  openModal(viewHistorial);
+
+  try {
+    const q = query(
+      collection(db, 'pedidos'),
+      where('uid', '==', currentUser.uid)
+    );
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      contenedor.innerHTML = `<div class="historial-vacio"><i class="fas fa-box-open"></i> Aún no tienes pedidos.</div>`;
+      return;
+    }
+
+    // Convertir a array y ordenar por fecha descendente
+    const pedidos = snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => {
+        const fa = a.fecha?.toDate?.() || new Date(0);
+        const fb = b.fecha?.toDate?.() || new Date(0);
+        return fb - fa;
+      });
+
+    contenedor.innerHTML = pedidos.map(p => {
+      const fecha = p.fecha?.toDate?.().toLocaleString('es-DO', {
+        day: '2-digit', month: '2-digit', year: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      }) || '—';
+
+      // Icono según el estado
+      const iconos = {
+        pendiente: '<i class="fas fa-clock" style="color:#856404;"></i>',
+        entregado: '<i class="fas fa-check-circle" style="color:#186b4b;"></i>',
+        credito: '<i class="fas fa-credit-card" style="color:#6d28d9;"></i>',
+        cancelado: '<i class="fas fa-times-circle" style="color:#a02020;"></i>'
+      };
+      const icono = iconos[p.estado] || '<i class="fas fa-circle"></i>';
+
+      // Lista de productos
+      let productosHTML = '';
+      if (p.items && Array.isArray(p.items)) {
+        productosHTML = p.items.map(i => `${i.cantidad}× ${i.nombre}`).join('<br>');
+      } else if (p.cantidad) {
+        productosHTML = `${p.cantidad}× Garrafón 20L`;
+      }
+
+      return `
+        <div class="historial-item">
+          <div class="historial-header">
+            <span class="historial-fecha">${fecha}</span>
+            <span class="historial-estado estado ${p.estado}">${icono} ${p.estado}</span>
+          </div>
+          <div class="historial-productos">${productosHTML || '—'}</div>
+          <div class="historial-footer">
+            <span>Total: <strong>$${p.total || p.precio || 0}</strong></span>
+            <span style="font-size:.8rem;color:#8aa9bd;">${p.horario || ''}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    contenedor.innerHTML = `<div class="historial-vacio" style="color:#a02020;"><i class="fas fa-exclamation-triangle"></i> Error al cargar pedidos.</div>`;
+  }
+}
+
+// Botón para cerrar el historial
+document.getElementById('btnCerrarHistorial').onclick = () => {
+  modal.classList.add('hidden');
+};

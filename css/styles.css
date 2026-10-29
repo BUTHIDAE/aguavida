@@ -705,6 +705,65 @@ th {
 .btn-x    { background: #fde2e2; color: #a02020; }
 .btn-undo { background: #e6f4ff; color: #0b5e8a; }
 
+
+
+/* ================= HISTORIAL ================= */
+.historial-lista {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: .3rem;
+}
+.historial-vacio {
+  text-align: center;
+  color: #8aa9bd;
+  padding: 2rem 0;
+  font-size: .95rem;
+}
+.historial-item {
+  background: #f9fdff;
+  border: 1.5px solid #d9edfa;
+  border-radius: 16px;
+  padding: 1rem;
+}
+.historial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .6rem;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.historial-fecha {
+  font-size: .8rem;
+  color: #417e9e;
+  font-weight: 600;
+}
+.historial-productos {
+  font-size: .9rem;
+  color: #0b3550;
+  line-height: 1.5;
+  margin-bottom: .6rem;
+  padding: .5rem .7rem;
+  background: #fff;
+  border-radius: 10px;
+}
+.historial-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .9rem;
+  color: #417e9e;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+.historial-footer strong {
+  color: #1f8ac0;
+  font-size: 1.1rem;
+}
+
 /* Responsive admin */
 @media (max-width: 640px) {
   .admin-back {
