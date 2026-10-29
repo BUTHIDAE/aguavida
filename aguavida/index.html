@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verbier · Agua potable a domicilio</title>
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img src="img/logo.png" alt="Verbier" class="logo-img">
+      <span><strong></strong></span>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <nav id="menuNav">
+      <a href="#precios" id="navPrecios">Precios</a>
+      <a href="#" id="navContacto">Contacto</a>
+      <div id="authArea"></div>
+    </nav>
+  </header>
+
+  <!-- CARRUSEL HERO -->
+  <section class="hero-carrusel">
+    <div class="slides-container" id="slidesContainer">
+
+      <div class="slide active">
+        <div class="slide-content">
+          <span class="badge"><i class="fas fa-shield-halved"></i> Agua 100% purificada</span>
+          <h1>Cada gota<br>cuenta</h1>
+          <p>Botellones de 5GL con entrega el mismo día. Pide fácil, paga al recibir.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-truck-fast"></i> Pedir ahora
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/hero.png" alt="Garrafón Verbier" class="hero-logo">
+        </div>
+      </div>
+
+      <div class="slide">
+        <div class="slide-content">
+          <span class="badge badge-promo"><i class="fas fa-gift"></i> Promoción del mes</span>
+          <h1>Compra aquí tu <br>Botellón vacío de 5GL</h1>
+          <p>Resistente, ligero, higiénico, al por mayor y al detalle.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-fire"></i> Aprovechar oferta
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/promovacio.jpg" alt="Promoción Verbier" class="hero-logo">
+        </div>
+      </div>
+
+      <div class="slide">
+        <div class="slide-content">
+          <span class="badge badge-envio"><i class="fas fa-truck"></i> Servicio a domicilio</span>
+          <h1>Tu primera compra<br>el 3ro es gratis</h1>
+          <p>Realiza tu primera compra y lleva 3 Botellones al precio de 2. Válido para nuevos clientes.</p>
+          <button class="btn-primary cta-pedir">
+            <i class="fas fa-bolt"></i> Pedir ya
+          </button>
+        </div>
+        <div class="slide-img">
+          <img src="img/hero.png" alt="Envío gratis Verbier" class="hero-logo">
+        </div>
+      </div>
+
+    </div>
+
+    <button class="slide-arrow prev" id="slidePrev" aria-label="Anterior">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slide-arrow next" id="slideNext" aria-label="Siguiente">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <div class="slide-dots" id="slideDots"></div>
+  </section>
+
+  <section id="precios" class="precios">
+    <h2>Nuestros precios</h2>
+    <div class="cards">
+      <div class="card">
+        <i class="fas fa-bottle-water"></i>
+        <h3>Botellón lleno 5GL</h3>
+        <p class="price">$45</p>
+        <p>Llenado por planta</p>
+      </div>
+      <div class="card destacado">
+        <span class="tag">Más vendido</span>
+        <i class="fas fa-bottle-water"></i>
+        <h3>Botellón Vacío 5GL</h3>
+        <p class="price">$200</p>
+        <p>Al por mayor y al detalle</p>
+        <p>Resistente, ligero, Higiénico</p>
+      </div>
+      <div class="card">
+        <i class="fas fa-bottle-water"></i>
+        <h3>Botellón 5GL</h3>
+        <p class="price">$50</p>
+        <p>Servicio a domicilio</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close" id="closeModal"><i class="fas fa-times"></i></button>
+
+      <div id="viewLogin" class="view hidden">
+        <h2>Inicia sesión</h2>
+        <input type="email" id="loginEmail" placeholder="Correo">
+        <input type="password" id="loginPass" placeholder="Contraseña">
+        <button class="btn-primary" id="btnLogin">Entrar</button>
+        <p class="switch" style="margin-top:.5rem;">
+          <a href="#" id="goForgot" style="font-size:.85rem;color:#417e9e;">¿Olvidaste tu contraseña?</a>
+        </p>
+        <p class="switch">¿No tienes cuenta? <a href="#" id="goRegister">Regístrate</a></p>
+      </div>
+
+      <div id="viewForgot" class="view hidden">
+        <h2>Recuperar contraseña</h2>
+        <p style="color:#417e9e;font-size:.9rem;margin-bottom:1rem;">
+          Escribe tu correo y te enviaremos un enlace para restablecer tu contraseña.
+        </p>
+        <input type="email" id="forgotEmail" placeholder="Tu correo electrónico">
+        <button class="btn-primary" id="btnForgot">Enviar enlace</button>
+        <p class="switch">¿Recordaste tu contraseña? <a href="#" id="goLoginFromForgot">Inicia sesión</a></p>
+      </div>
+
+      <div id="viewRegister" class="view hidden">
+        <h2>Crea tu cuenta</h2>
+        <input type="text" id="regNombre" placeholder="Nombre completo">
+        <input type="email" id="regEmail" placeholder="Correo">
+        <input type="tel" id="regTel" placeholder="Teléfono (WhatsApp)">
+        <input type="text" id="regDir" placeholder="Dirección de entrega">
+        <input type="password" id="regPass" placeholder="Contraseña (mínimo 6)">
+        <button class="btn-primary" id="btnRegister">Registrarme</button>
+        <p class="switch">¿Ya tienes cuenta? <a href="#" id="goLogin">Inicia sesión</a></p>
+      </div>
+
+      <div id="viewPedido" class="view hidden">
+        <h2>Nuevo pedido</h2>
+        <p class="user-info" id="userInfo"></p>
+
+        <label style="font-weight:600;color:#1c577a;font-size:.9rem;margin-bottom:.5rem;display:block;">
+          <i class="fas fa-bottle-water"></i> Agrega productos
+        </label>
+        <div class="agregar-row">
+          <select id="prodSelect">
+            <option value="Botellón 5GL" data-precio="50">Botellón 5Gl(a domicilio) — $50</option>
+            <option value="Botellón Vacío 5GL" data-precio="200">Botellón Vacío 5GL — $200</option>
+            <option value="Botellón 5GL" data-precio="45">Botellón 5GL (Solo en planta) — $45 </option>
+          </select>
+          <input type="number" id="prodCantidad" value="1" min="1" max="50">
+          <button type="button" class="btn-add" id="btnAgregar"><i class="fas fa-plus"></i></button>
+        </div>
+
+        <div id="carrito" class="carrito"></div>
+
+        <div class="total-box">
+          <span>Total:</span>
+          <strong id="totalPedido">$0</strong>
+        </div>
+
+        <input type="text" id="pedidoDir" placeholder="Dirección de entrega">
+        <select id="pedidoHorario">
+          <option value="Mañana (9am-12pm)">Mañana (9am-12pm)</option>
+          <option value="Tarde (2pm-6pm)">Tarde (2pm-6pm)</option>
+          <option value="Noche (6pm-8pm)">Noche (6pm-8pm)</option>
+        </select>
+        <textarea id="pedidoNotas" placeholder="Notas adicionales (opcional)"></textarea>
+        <button class="btn-primary" id="btnPedir">
+          <i class="fas fa-file-pdf"></i> Generar factura PDF
+        </button>
+      </div>
+
+            <div id="viewHistorial" class="view hidden">
+        <h2>Mis pedidos</h2>
+        <div id="listaHistorial" class="historial-lista">
+          <!-- Aquí se cargarán los pedidos con JS -->
+        </div>
+        <button class="btn-primary btn-full" id="btnCerrarHistorial" style="margin-top:1rem;">Volver</button>
+      </div>
+
+      <p id="msg" class="msg hidden"></p>
+    </div>
+  </div>
+
+  <footer id="contacto" class="footer">
+    <p><i class="fas fa-droplet"></i> Verbier · República Dominicana</p>
+    <p>
+      <a href="https://maps.app.goo.gl/UaPyjHrzsc6PpGS78" id="#" target="_blank"><i class="fas fa-map-marker-alt"></i> Av. Hípica #72, Brisas del este, Santo Domingo Este</a>
+    </p>
+    <p>
+      <a href="#" id="footerWhatsapp"><i class="fab fa-whatsapp"></i> Escríbenos por WhatsApp</a>
+    </p>
+    
+    <p style="margin-top:1rem;">
+      <a href="admin.html" style="color:#8ec9f0;font-size:.85rem;">
+        <i class="fas fa-lock"></i> Acceso administrador
+      </a>
+    </p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

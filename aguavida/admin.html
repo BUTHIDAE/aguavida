@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin · Verbier</title>
+  <link rel="icon" type="image/png" href="img/logo.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <header class="header">
+    <a href="index.html" class="logo">
+      <img src="img/logo.png" alt="Verbier" class="logo-img">
+      <span><strong></strong> Admin</span>
+    </a>
+    <a href="index.html" class="admin-back">← Volver al sitio</a>
+  </header>
+
+  <!-- LOGIN ADMIN -->
+  <div id="loginAdmin" class="login-admin">
+    <h2>Acceso administrador</h2>
+    <input type="email" id="adminEmail" placeholder="Correo">
+    <input type="password" id="adminPass" placeholder="Contraseña">
+    <button class="btn-primary btn-full" id="btnAdminLogin">Entrar</button>
+    <p id="adminMsg" class="admin-msg"></p>
+  </div>
+
+  <!-- PANEL ADMIN -->
+  <div id="panelAdmin" class="admin-wrap hidden">
+    <h1><i class="fas fa-clipboard-list"></i> Pedidos</h1>
+
+    <!-- Buscador -->
+    <div class="buscador">
+      <i class="fas fa-search"></i>
+      <input type="text" id="buscadorInput" placeholder="Buscar por nombre, teléfono o correo...">
+      <button class="limpiar-busqueda" id="btnLimpiarBusqueda" title="Limpiar">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Filtros por estado -->
+    <div class="filtros">
+      <button data-filtro="todos" class="active">Todos</button>
+      <button data-filtro="pendiente">Pendientes</button>
+      <button data-filtro="entregado">Entregados</button>
+      <button data-filtro="credito">Créditos</button>
+      <button data-filtro="cancelado">Cancelados</button>
+    </div>
+
+    <!-- Filtros rápidos por fecha -->
+    <div class="filtros">
+      <span class="filtros-label">
+        <i class="fas fa-calendar-day"></i> Fecha:
+      </span>
+      <button data-fecha="hoy">Hoy</button>
+      <button data-fecha="ayer">Ayer</button>
+      <button data-fecha="7dias">Últimos 7 días</button>
+      <button data-fecha="mes">Este mes</button>
+      <button data-fecha="todo" class="active">Todo</button>
+    </div>
+
+    <!-- Rango personalizado -->
+    <div class="rango-fechas">
+      <label><i class="fas fa-calendar-alt"></i> Rango personalizado:</label>
+      <input type="date" id="fechaDesde">
+      <span class="rango-flecha">→</span>
+      <input type="date" id="fechaHasta">
+      <button class="btn-aplicar" id="btnAplicarRango">Aplicar</button>
+      <button class="btn-limpiar" id="btnLimpiarFiltros">Limpiar</button>
+    </div>
+
+    <div class="contador-resultados" id="contadorResultados"></div>
+
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Productos</th>
+            <th>Total</th>
+            <th>Horario</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPedidos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>
